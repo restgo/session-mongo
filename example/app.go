@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	router := restgo.NewRouter()
+	app := restgo.App()
 
 	sessionOpts := `{
 		"Secret"     :"secret",
@@ -31,9 +31,9 @@ func main() {
 		"Password"  :""
 	}`
 
-	router.Use("/", session.NewSessionManager(session_mongo.NewMongoSessionStore(mongoOpts), sessionOpts))
+	app.Use("/", session.NewSessionManager(session_mongo.NewMongoSessionStore(mongoOpts), sessionOpts))
 
-	router.GET("/about", func(ctx *fasthttp.RequestCtx, next restgo.Next) {
+	app.GET("/about", func(ctx *fasthttp.RequestCtx, next restgo.Next) {
 		s := ctx.UserValue("session")
 		session, _ := s.(*session.Session)
 		if _, ok := session.Values["time"]; ok {
@@ -45,5 +45,5 @@ func main() {
 		restgo.ServeTEXT(ctx, "About", 200)
 	})
 
-	fasthttp.ListenAndServe(":8080", router.FastHttpHandler)
+	app.Run(":8080")
 }
