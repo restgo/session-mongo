@@ -5,7 +5,6 @@ import (
 	"github.com/restgo/restgo"
 	"github.com/restgo/session"
 	"github.com/restgo/session-mongo"
-	"github.com/valyala/fasthttp"
 	"time"
 )
 
@@ -33,7 +32,7 @@ func main() {
 
 	app.Use("/", session.NewSessionManager(session_mongo.NewMongoSessionStore(mongoOpts), sessionOpts))
 
-	app.GET("/about", func(ctx *fasthttp.RequestCtx, next restgo.Next) {
+	app.GET("/about", func(ctx *restgo.Context, next restgo.Next) {
 		s := ctx.UserValue("session")
 		session, _ := s.(*session.Session)
 		if _, ok := session.Values["time"]; ok {
@@ -42,7 +41,7 @@ func main() {
 			session.Values["time"] = time.Now().Format("2006-01-02 15:04:05")
 		}
 
-		restgo.ServeTEXT(ctx, "About", 200)
+		ctx.ServeText(200, "About")
 	})
 
 	app.Run(":8080")
